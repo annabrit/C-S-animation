@@ -36,18 +36,6 @@ function transformData(csvData) {
   return dataArray;
 }
 
-function calcTimeStamp(time, scrubTime, isPaused) {
- return `
-    Time Elapsed: ${time}ms
-    Scrub Time: ${scrubTime}ms
-    Paused: ${isPaused}
-    Commands:
-    Restart: r or shift + r
-    Pause/Play: space
-    Prev/Next Card: shift + left/right arrows
-    Scrub Back/Forward: left/right arrows`;
-};
-
 function createTime(displayData) {
   let time = 0;
   let currentIndex = 0;
@@ -76,12 +64,16 @@ function createTime(displayData) {
           ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
         changeCard(displayData, currentIndex);
         currentIndex++;
-        console.log(time);
-        console.log(time+scrubTime);
       }
       if (currentIndex > displayData.length - 1) {
         timeFunctions.resetTimer();
       }
+      if (displayData[currentIndex][2] === ''
+          && displayData[currentIndex][3] === ''
+          && displayData[currentIndex][4] === ''
+          && displayData[currentIndex][5] === ''){
+          timeFunctions.resetTimer();
+        }
       time += 10;
     }, 10);
   };
@@ -149,10 +141,32 @@ function createTime(displayData) {
 }
 
 function changeCard(displayData, index) {
-  title.innerText = displayData[index][2];
-  subtitle.innerText = displayData[index][3];
-  background.style.backgroundColor = displayData[index][4];
-  card.style.color = displayData[index][5];
+  title.innerText = displayData[index][2] || '';
+  subtitle.innerText = displayData[index][3] || '';
+  background.style.backgroundColor = displayData[index][4] || 'black';
+  card.style.color = displayData[index][5] || 'black';
+}
+
+function calcTimeStamp(time, scrubTime, isPaused) {
+  let hours = Math.floor(time / 3600000)
+  let minutes = Math.max(Math.floor((time - (hours * 3600000))/ 60000),0);
+  let seconds = Math.max(Math.floor((time - (hours * 3600000) - (minutes * 60000)) / 1000),0);
+  let ms = ((time - (hours * 3600000) - (minutes * 60000) - (seconds * 1000)) / 10);
+ 
+  return `
+    Time Elapsed: ${(hours).pad(2)};${(minutes).pad(2)};${(seconds).pad(2)};${(ms).pad(2)}
+    Scrub Time: ${scrubTime}ms
+    Paused: ${isPaused}
+    Commands:
+    Restart: r or shift + r
+    Pause/Play: space
+    Prev/Next Card: shift + left/right arrows
+    Scrub Back/Forward: left/right arrows`;
+};
+
+Number.prototype.pad = function(size) {
+  var sign = Math.sign(this) === -1 ? '-' : '';
+  return sign + new Array(size).concat([Math.abs(this)]).join('0').slice(-size);
 }
 
 window.onload = function() {
