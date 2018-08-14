@@ -21,7 +21,7 @@ function transformData(csvData) {
     }
   });
   dataArray = dataArray.filter(val => {
-    if (Array.isArray(val) && !Number.isNaN(val[0]) && val.length === 6) {
+    if (Array.isArray(val) && !Number.isNaN(val[0]) && val.length === 7) {
       return true;
     }
     return false;
@@ -34,6 +34,16 @@ function transformData(csvData) {
     return true;
   });
   return dataArray;
+}
+
+function setKeyValues(dataArray) {
+  let keyObj = {};
+  for(let i = 0; i < dataArray.length; i++) {
+    if (dataArray[i][6] !== ''){
+      keyObj[dataArray[i][6]] = i;
+    }
+  }
+  return keyObj;
 }
 
 function createTime(displayData) {
@@ -118,6 +128,16 @@ function createTime(displayData) {
       timeFunctions.resetTimer();
     }
   };
+  timeFunctions.keyJump = (index) => {
+    time = displayData[index][0];
+    currentIndex = index + 1;
+    changeCard(displayData, index);
+    scrubTime = 0;
+    timestamp.innerText =
+          'This slide should sync with ' +
+          displayData[index][1] +
+          ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
+  }
   timeFunctions.subtractScrub = () => {
     scrubTime = scrubTime - 100;
   };
@@ -171,7 +191,9 @@ Number.prototype.pad = function(size) {
 
 window.onload = function() {
   const cardData = transformData(data);
+  const keyObj = setKeyValues(cardData);
   console.log(cardData);
+  console.log(keyObj);
   const session = createTime(cardData);
 
   session.startTimer();
@@ -192,6 +214,8 @@ window.onload = function() {
       session.subtractScrub();
     } else if (key === 'Enter') {
       session.displayTimeStamp();
+    } else if (keyObj[key]) {
+      session.keyJump(keyObj[key]);
     } 
   });
 };
