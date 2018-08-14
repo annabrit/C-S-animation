@@ -73,17 +73,19 @@ function createTime(displayData) {
           displayData[currentIndex][1] +
           ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
         changeCard(displayData, currentIndex);
-        currentIndex++;
+        if (displayData[currentIndex][2] === ''
+          && displayData[currentIndex][3] === ''
+          && displayData[currentIndex][4] === ''
+          && displayData[currentIndex][5] === ''
+          && displayData[currentIndex][6] === ''){
+          timeFunctions.resetTimer();
+        } else {
+          currentIndex++;
+        }
       }
       if (currentIndex > displayData.length - 1) {
         timeFunctions.resetTimer();
       }
-      if (displayData[currentIndex][2] === ''
-          && displayData[currentIndex][3] === ''
-          && displayData[currentIndex][4] === ''
-          && displayData[currentIndex][5] === ''){
-          timeFunctions.resetTimer();
-        }
       time += 10;
     }, 10);
   };
