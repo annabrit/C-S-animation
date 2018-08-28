@@ -1,7 +1,7 @@
 function timeToMilliSeconds(hh, mm, ss, msms) {
   return (
     ((parseInt(hh) * 60 + parseInt(mm)) * 60 + parseInt(ss)) * 1000 +
-    parseInt(msms) * 10
+    parseInt(msms)
   );
 }
 
@@ -15,7 +15,7 @@ function transformData(csvData) {
   });
   dataArray.forEach(val => {
     if (Array.isArray(val)) {
-      var timeArray = val[0].split(/\;|\:/);
+      var timeArray = val[0].split(/\;|\:|\./);
       var totalMilliSeconds = timeToMilliSeconds(...timeArray);
       val.unshift(totalMilliSeconds);
     }
@@ -67,7 +67,7 @@ function createTime(displayData) {
   timeFunctions.startTimer = () => {
     isPaused = false;
     timer = setInterval(function() {
-      if (displayData[currentIndex][0] <= time + scrubTime) {
+      if ((Math.round(displayData[currentIndex][0] / 10) * 10) <= time + scrubTime) {
         timestamp.innerText =
           'This slide should sync with ' +
           displayData[currentIndex][1] +
@@ -100,6 +100,10 @@ function createTime(displayData) {
           ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
     } else {
       timeFunctions.startTimer();
+      timestamp.innerText =
+          'This slide should sync with ' +
+          displayData[currentIndex][1] +
+          ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
     }
   };
   timeFunctions.increaseTime = () => {
@@ -173,10 +177,10 @@ function calcTimeStamp(time, scrubTime, isPaused) {
   let hours = Math.floor(time / 3600000)
   let minutes = Math.max(Math.floor((time - (hours * 3600000))/ 60000),0);
   let seconds = Math.max(Math.floor((time - (hours * 3600000) - (minutes * 60000)) / 1000),0);
-  let ms = ((time - (hours * 3600000) - (minutes * 60000) - (seconds * 1000)) / 10);
+  let ms = ((time - (hours * 3600000) - (minutes * 60000) - (seconds * 1000)));
  
   return `
-    Time Elapsed: ${(hours).pad(2)};${(minutes).pad(2)};${(seconds).pad(2)};${(ms).pad(2)}
+    Time Elapsed: ${(hours).pad(2)}:${(minutes).pad(2)}:${(seconds).pad(2)}.${(ms).pad(3)}
     Scrub Time: ${scrubTime}ms
     Paused: ${isPaused}
     Commands:
